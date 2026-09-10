@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <windows.h>
 using namespace std;
 
@@ -46,6 +47,11 @@ void zadanie2()
     string word;
     cin >> word;
 
+    if (word.size() > 20) {
+        cout << "ERROR: слово слишком длинное\n";
+        return;
+    }
+
     string result = "";
     result += toupper(word[0]);
 
@@ -84,23 +90,177 @@ void zadanie2()
 void zadanie3()
 {
     cout << "ЗАДАНИЕ 3: ОБРАТНАЯ ПЕРЕСТАНОВКА\n";
+    cout << "Введите n: ";
 
     int n;
     cin >> n;
 
+    if (n <= 0 || n > 20000) {
+        cout << "NO: n должно быть от 1 до 20000\n";
+        return;
+    }
+
     vector<int> a(n);
+    cout << "Введите " << n << " чисел: ";
     for (int i = 0; i < n; i++) cin >> a[i];
 
-    vector<int> b(n, 0);
-
     for (int i = 0; i < n; i++) {
-        if (a[i] >= 1 && a[i] <= n) {
-            b[a[i] - 1] = i + 1;
+        if (a[i] < 1 || a[i] > n) {
+            cout << "NO: числа должны быть от 1 до " << n << "\n";
+            return;
         }
     }
 
+    vector<int> check(n + 1, 0);
+    for (int i = 0; i < n; i++) check[a[i]]++;
+
+    for (int i = 1; i <= n; i++) {
+        if (check[i] != 1) {
+            cout << "NO: числа должны быть уникальными\n";
+            return;
+        }
+    }
+
+    vector<int> b(n, 0);
+    for (int i = 0; i < n; i++) {
+        b[a[i] - 1] = i + 1;
+    }
+
+    cout << "YES\n";
     for (int i = 0; i < n; i++) cout << b[i] << " ";
     cout << "\n";
+}
+
+void zadanie4()
+{
+    cout << "ЗАДАНИЕ 4: СОРТИРОВКА ПО УБЫВАНИЮ\n";
+    cout << "Введите количество строк: ";
+
+    int n;
+    cin >> n;
+
+    if (n <= 0 || n > 1000) {
+        cout << "ERROR: n должно быть от 1 до 1000\n";
+        cin.ignore(); 
+        return;
+    }
+
+    cin.ignore(); 
+
+    vector<string> lines;
+    string line;
+
+    for (int i = 0; i < n; i++) {
+        getline(cin, line);
+
+        if (line.size() > 100) {
+            cout << "ERROR: строка слишком длинная\n";
+            return;
+        }
+
+        lines.push_back(line);
+    }
+
+    sort(lines.begin(), lines.end());
+    reverse(lines.begin(), lines.end());
+
+    for (int i = 0; i < lines.size(); i++) {
+        cout << lines[i] << "\n";
+    }
+}
+
+void zadanie5()
+{
+    cout << "ЗАДАНИЕ 5: ПАЛИНДРОМ\n";
+    cout << "Введите строку: ";
+
+    string s;
+    getline(cin, s);
+
+    if (s.size() > 100) {
+        cout << "ERROR: строка слишком длинная\n";
+        return;
+    }
+
+    string clean = "";
+    for (int i = 0; i < s.size(); i++) {
+        if (s[i] != ' ') {
+            clean += s[i];
+        }
+    }
+
+    bool is_palindrome = true;
+    int len = clean.size();
+
+    for (int i = 0; i < len / 2; i++) {
+        if (clean[i] != clean[len - 1 - i]) {
+            is_palindrome = false;
+            break;
+        }
+    }
+
+    if (is_palindrome) cout << "YES\n";
+    else cout << "NO\n";
+}
+
+void zadanie6()
+{
+    cout << "ЗАДАНИЕ 6: САПЁР\n";
+    cout << "Введите n m k: ";
+
+    int n, m, k;
+    cin >> n >> m >> k;
+
+    if (n <= 0 || n > 100 || m <= 0 || m > 100 || k < 0 || k > n * m) {
+        cout << "ERROR: неверные размеры поля или количество мин\n";
+        return;
+    }
+
+    vector<vector<int>> field(n, vector<int>(m, 0));
+
+    for (int i = 0; i < k; i++) {
+        int r, c;
+        cin >> r >> c;
+
+        if (r < 1 || r > n || c < 1 || c > m) {
+            cout << "ERROR: координаты мины вне поля\n";
+            return;
+        }
+
+        if (field[r - 1][c - 1] == -1) {
+            cout << "ERROR: мина уже стоит в этой клетке\n";
+            return;
+        }
+
+        field[r - 1][c - 1] = -1;
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (field[i][j] == -1) continue;
+
+            int count = 0;
+            for (int di = -1; di <= 1; di++) {
+                for (int dj = -1; dj <= 1; dj++) {
+                    if (di == 0 && dj == 0) continue;
+                    int ni = i + di;
+                    int nj = j + dj;
+                    if (ni >= 0 && ni < n && nj >= 0 && nj < m) {
+                        if (field[ni][nj] == -1) count++;
+                    }
+                }
+            }
+            field[i][j] = count;
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (field[i][j] == -1) cout << "*";
+            else cout << field[i][j];
+        }
+        cout << "\n";
+    }
 }
 
 int main()
@@ -113,5 +273,11 @@ int main()
     zadanie2();
     cout << "\n";
     zadanie3();
+    cout << "\n";
+    zadanie4();
+    cout << "\n";
+    zadanie5();
+    cout << "\n";
+    zadanie6();
     return 0;
 }
